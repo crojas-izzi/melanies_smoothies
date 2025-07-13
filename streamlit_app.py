@@ -1,7 +1,5 @@
 # 🐍 Importar paquetes de Python
 import streamlit as st
-cnx = st.connection("snowflake")
-session = cnx.session()
 from snowflake.snowpark.functions import col
 
 # 🖥️ Mostrar título y subtítulo
@@ -17,7 +15,8 @@ name_on_order = st.text_input('Name on Smoothie:')
 st.write('The name on your Smoothie will be:', name_on_order)
 
 # 📥 Conexión a Snowflake y carga de datos
-session = get_active_session()
+cnx = st.connection("snowflake")
+session = cnx.session()
 
 # Seleccionar solo la columna con los nombres de frutas
 my_dataframe = session.table("smoothies.public.fruit_options").select(col("FRUIT_NAME"))
