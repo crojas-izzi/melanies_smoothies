@@ -1,5 +1,6 @@
 # 🐍 Importar paquetes de Python
 import streamlit as st
+import requests  # ← MOVIDO AQUÍ
 from snowflake.snowpark.functions import col
 
 # 🖥️ Mostrar título y subtítulo
@@ -35,10 +36,14 @@ if ingredients_list:
     for fruit_chosen in ingredients_list:
         ingredients_string += str(fruit_chosen) + ' '
 
+        # 🍉 Llamar a la API externa para mostrar info nutricional de cada fruta
+        smoothiefroot_response = requests.get(f"https://my.smoothiefroot.com/api/fruit/{fruit_chosen.lower()}")
+        st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
+
     # 📤 Crear el statement SQL de inserción
-    my_insert_stmt = """
+    my_insert_stmt = f"""
         insert into smoothies.public.orders (ingredients, name_on_order)
-        values ('""" + ingredients_string.strip() + """','""" + name_on_order + """')
+        values ('{ingredients_string.strip()}','{name_on_order}')
     """
 
     # ⏩ Botón para enviar pedido
@@ -47,11 +52,3 @@ if ingredients_list:
     if time_to_insert:
         session.sql(my_insert_stmt).collect()
         st.success("Your Smoothie is ordered, " + name_on_order + "!")
-
-# Nueva sección para mostrar información nutricional desde SmoothieFroot
-import requests
-smoothiefroot_response = requests.get("https://my.smoothiefroot.com/api/fruit/watermelon")
-# st.text(smoothiefroot_response.jonson())
-sf_df = st.dataframe(data=smoothiefroot_response.jonson(),use_container_width=True)
-
-
